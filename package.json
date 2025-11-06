@@ -1,0 +1,20 @@
+{
+  "name": "nasze-radio-backend",
+  "version": "1.0.0",
+  "description": "Serwer Node.js dla aplikacji Nasze Radio (Resend + uploady głosowe i reporterskie)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "resend": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "Angelus Media",
+  "license": "MIT"
+}
