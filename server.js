@@ -73,7 +73,7 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      const { nickname, audioDuration } = req.body;
+      const { nickname, contact, message, audioDuration } = req.body;
       const files = req.files;
 
       if (!nickname) {
@@ -105,7 +105,7 @@ app.post(
           filename: `${nickname}_film_${Date.now()}.mp4`,
           content: videoBuffer,
         });
-        contentDescription += "🎬 Film\n";
+        contentDescription += "🎬 Film: Tak\n";
         fs.unlinkSync(video.path);
       }
 
@@ -116,22 +116,37 @@ app.post(
           filename: `${nickname}_audio_${Date.now()}.m4a`,
           content: audioBuffer,
         });
-        contentDescription += `🎤 Relacja głosowa (${audioDuration || "?"}s)\n`;
+        contentDescription += `🎤 Relacja głosowa: Tak (${audioDuration || "?"}s)\n`;
         fs.unlinkSync(audio.path);
       }
+
+      // Budowanie HTML z nowymi polami
+      let emailHTML = `
+        <h2>Nowy materiał reporterski!</h2>
+        <p><strong>Reporter:</strong> ${nickname}</p>
+        ${contact ? `<p><strong>Kontakt:</strong> ${contact}</p>` : ''}
+        <p><strong>Data:</strong> ${new Date().toLocaleString("pl-PL")}</p>
+      `;
+
+      if (message) {
+        emailHTML += `
+        <hr>
+        <h3>Wiadomość od reportera:</h3>
+        <p style="background: #f5f5f5; padding: 12px; border-radius: 8px; white-space: pre-wrap;">${message}</p>
+        `;
+      }
+
+      emailHTML += `
+        <hr>
+        <h3>Przesłane materiały:</h3>
+        <pre>${contentDescription}</pre>
+      `;
 
       const { data, error } = await resend.emails.send({
         from: "Nasze Radio Reporter <onboarding@resend.dev>",
         to: "portalnaszefm@gmail.com",
         subject: `📰 Materiał reporterski od: ${nickname}`,
-        html: `
-          <h2>Nowy materiał reporterski!</h2>
-          <p><strong>Reporter:</strong> ${nickname}</p>
-          <p><strong>Data:</strong> ${new Date().toLocaleString("pl-PL")}</p>
-          <hr>
-          <h3>Przesłane materiały:</h3>
-          <pre>${contentDescription}</pre>
-        `,
+        html: emailHTML,
         attachments,
       });
 
